@@ -10,9 +10,10 @@ interface RealTimeChartProps {
   color: string;
   height?: number;
   maxPoints?: number;
+  unit?: string;
 }
 
-export function RealTimeChart({ data, color, height = 120, maxPoints = 200 }: RealTimeChartProps) {
+export function RealTimeChart({ data, color, height = 120, maxPoints = 200, unit }: RealTimeChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -77,6 +78,15 @@ export function RealTimeChart({ data, color, height = 120, maxPoints = 200 }: Re
     });
 
     ctx.stroke();
+
+    // Draw Y-axis unit label at top left corner
+    if (unit) {
+      ctx.fillStyle = '#6b7280'; // gray-500
+      ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText(unit, 8, 8);
+    }
 
     // Draw points - only show recent points for cleaner real-time visualization
     ctx.fillStyle = color;

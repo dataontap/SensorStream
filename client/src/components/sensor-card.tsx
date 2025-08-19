@@ -48,7 +48,7 @@ export function SensorCard({
           const axis = dataKey.split('.')[1] as 'x' | 'y' | 'z';
           val = reading.magnetometer[axis];
         }
-        
+
         return {
           timestamp: new Date(reading.timestamp || Date.now()).getTime(),
           value: val,
@@ -83,10 +83,15 @@ export function SensorCard({
           </p>
           <p className="text-sm text-gray-500">{unit}</p>
         </div>
-        
+
         <div className="h-32 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 overflow-hidden">
           {chartData.length > 1 ? (
-            <RealTimeChart data={chartData} color={color} height={120} />
+            <RealTimeChart 
+              data={chartData} 
+              color={color} 
+              height={120}
+              unit={unit}
+            />
           ) : (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
