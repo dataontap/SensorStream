@@ -81,6 +81,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       } catch (error) {
         console.error('WebSocket message error:', error);
+        // Log WebSocket errors to Sentry if available
+        if (process.env.SENTRY_KEY) {
+          const Sentry = require('@sentry/node');
+          Sentry.captureException(error);
+        }
       }
     });
     
