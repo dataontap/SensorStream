@@ -103,6 +103,7 @@ export function useSensors(): UseSensorsReturn {
 
   const startSensors = useCallback(() => {
     if (!isActive) {
+      console.log('Starting sensors...', isSupported);
       setIsActive(true);
       
       if (isSupported.accelerometer) {
@@ -114,16 +115,16 @@ export function useSensors(): UseSensorsReturn {
       }
       
       // Simulate light sensor (as most browsers don't support AmbientLightSensor yet)
-      if (!isSupported.light) {
-        const lightInterval = setInterval(() => {
-          setSensorData(prev => ({
-            ...prev,
-            lightLevel: Math.random() * 1000, // Random value between 0-1000 lux
-          }));
-        }, 1000);
+      console.log('Setting up simulated sensors');
+      const lightInterval = setInterval(() => {
+        setSensorData(prev => ({
+          ...prev,
+          lightLevel: Math.random() * 1000, // Random value between 0-1000 lux
+        }));
+      }, 1000);
         
-        return () => clearInterval(lightInterval);
-      }
+      // Clear intervals on cleanup
+      const intervalIds = [lightInterval];
       
       // Simulate air pressure sensor
       const pressureInterval = setInterval(() => {

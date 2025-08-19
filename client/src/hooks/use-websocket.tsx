@@ -58,12 +58,14 @@ export function useWebSocket(): UseWebSocketReturn {
           switch (message.type) {
             case 'device-list':
               if (message.devices) {
+                console.log('Received device list:', message.devices);
                 setDevices(message.devices);
               }
               break;
               
             case 'sensor-update':
               if (message.deviceId && message.reading) {
+                console.log('Received sensor update for device:', message.deviceId, message.reading);
                 setLatestReadings(prev => new Map(prev.set(message.deviceId!, message.reading!)));
               }
               break;

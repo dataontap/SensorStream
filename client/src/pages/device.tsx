@@ -33,6 +33,7 @@ export default function DevicePage() {
       
       // Register with WebSocket
       if (isConnected) {
+        console.log('Registering device with WebSocket:', device.id);
         sendMessage({
           type: 'register',
           deviceId: device.id
@@ -65,6 +66,7 @@ export default function DevicePage() {
 
     const interval = setInterval(() => {
       if (sensorData) {
+        console.log('Sending sensor data:', sensorData);
         sendMessage({
           type: 'sensor-data',
           data: {
@@ -115,6 +117,16 @@ export default function DevicePage() {
   const handleStartSensors = () => {
     startSensors();
     setIsStreaming(true);
+    
+    // Ensure WebSocket registration when starting sensors
+    if (isConnected && deviceId) {
+      console.log('Re-registering device with WebSocket for streaming:', deviceId);
+      sendMessage({
+        type: 'register',
+        deviceId: deviceId
+      });
+    }
+    
     toast({
       title: "Sensors Started",
       description: "Sensor data collection has started.",

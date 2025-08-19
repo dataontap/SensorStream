@@ -38,11 +38,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         if (message.type === 'sensor-data' && deviceId) {
+          console.log('Received sensor data for device:', deviceId, message.data);
           // Store sensor reading
           const reading = await storage.createSensorReading({
             deviceId,
             ...message.data
           });
+          
+          console.log('Stored reading:', reading.id);
           
           // Broadcast to all clients
           broadcastToAll({
