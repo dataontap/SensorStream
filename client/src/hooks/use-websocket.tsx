@@ -69,10 +69,20 @@ export function useWebSocket(): UseWebSocketReturn {
               
             case 'sensor-update':
               if (message.deviceId && message.reading) {
-                console.log('Received sensor update for device:', message.deviceId, message.reading);
-                setLatestReadings(prev => new Map(prev.set(message.deviceId!, message.reading!)));
+                console.log('🔥 DASHBOARD: Received sensor update for device:', message.deviceId, message.reading);
+                setLatestReadings(prev => {
+                  const newMap = new Map(prev);
+                  newMap.set(message.deviceId!, message.reading!);
+                  console.log('🔥 DASHBOARD: Updated readings map:', newMap);
+                  return newMap;
+                });
+              } else {
+                console.warn('⚠️ DASHBOARD: Invalid sensor update message:', message);
               }
               break;
+              
+            default:
+              console.log('🔥 DASHBOARD: Unknown WebSocket message type:', message.type, message);
           }
         } catch (error) {
           console.error('Failed to parse WebSocket message:', error);

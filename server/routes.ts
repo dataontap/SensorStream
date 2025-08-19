@@ -57,11 +57,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log('Stored reading:', reading.id);
           
           // Broadcast to all clients
-          broadcastToAll({
+          console.log('📡 SERVER: Broadcasting sensor update to', clients.size, 'clients');
+          const broadcastMessage = {
             type: 'sensor-update',
             deviceId,
             reading
-          });
+          };
+          console.log('📡 SERVER: Broadcasting message:', JSON.stringify(broadcastMessage));
+          broadcastToAll(broadcastMessage);
         }
       } catch (error) {
         console.error('WebSocket message error:', error);
@@ -79,11 +82,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   function broadcastToAll(message: any) {
     const messageStr = JSON.stringify(message);
-    clients.forEach((client) => {
+    console.log('📡 SERVER: Broadcasting to', clients.size, 'total clients');
+    let sentCount = 0;
+    
+    clients.forEach((client, deviceId) => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(messageStr);
+        sentCount++;
+        console.log('📡 SERVER: Sent to device', deviceId);
+      } else {
+        console.log('⚠️ SERVER: Skipping closed connection for device', deviceId);
       }
     });
+    
+    console.log('📡 SERVER: Successfully sent to', sentCount, 'clients');
   }
   
   async function broadcastDeviceList() {
