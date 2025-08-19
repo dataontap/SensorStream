@@ -12,7 +12,7 @@ interface RealTimeChartProps {
   maxPoints?: number;
 }
 
-export function RealTimeChart({ data, color, height = 120, maxPoints = 50 }: RealTimeChartProps) {
+export function RealTimeChart({ data, color, height = 120, maxPoints = 200 }: RealTimeChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -33,11 +33,16 @@ export function RealTimeChart({ data, color, height = 120, maxPoints = 50 }: Rea
 
     if (data.length < 2) return;
 
-    // Get the last maxPoints data points
+    // Get the last maxPoints data points for real-time visualization
     const points = data.slice(-maxPoints);
     
-    // Calculate bounds
-    const values = points.map(p => p.value);
+    // Show only data from the last 2 minutes for more real-time feel
+    const now = Date.now();
+    const recentPoints = points.filter(p => (now - p.timestamp) < 120000); // Last 2 minutes
+    const displayPoints = recentPoints.length > 10 ? recentPoints : points;
+    
+    // Calculate bounds using display points
+    const values = displayPoints.map(p => p.value);
     const minValue = Math.min(...values);
     const maxValue = Math.max(...values);
     const valueRange = maxValue - minValue || 1;
@@ -60,8 +65,8 @@ export function RealTimeChart({ data, color, height = 120, maxPoints = 50 }: Rea
     ctx.lineWidth = 2;
     ctx.beginPath();
 
-    points.forEach((point, index) => {
-      const x = (index / (points.length - 1)) * rect.width;
+    displayPoints.forEach((point, index) => {
+      const x = (index / (displayPoints.length - 1)) * rect.width;
       const y = rect.height - ((point.value - minValue) / valueRange) * rect.height;
       
       if (index === 0) {
@@ -73,10 +78,10 @@ export function RealTimeChart({ data, color, height = 120, maxPoints = 50 }: Rea
 
     ctx.stroke();
 
-    // Draw points
+    // Draw points - only show recent points for cleaner real-time visualization
     ctx.fillStyle = color;
-    points.forEach((point, index) => {
-      const x = (index / (points.length - 1)) * rect.width;
+    displayPoints.forEach((point, index) => {
+      const x = (index / (displayPoints.length - 1)) * rect.width;
       const y = rect.height - ((point.value - minValue) / valueRange) * rect.height;
       
       ctx.beginPath();
@@ -85,6 +90,17 @@ export function RealTimeChart({ data, color, height = 120, maxPoints = 50 }: Rea
     });
 
   }, [data, color, height, maxPoints]);
+
+  // Add animation frame for smoother real-time updates
+  useEffect(() => {
+    let animationId: number;
+    const animate = () => {
+      // Chart will re-render when data prop changes
+      animationId = requestAnimationFrame(animate);
+    };
+    animate();
+    return () => cancelAnimationFrame(animationId);
+  }, []);
 
   return (
     <canvas

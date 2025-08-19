@@ -16,17 +16,17 @@ export default function Dashboard() {
   // Also fetch devices via REST API as fallback
   const { data: restDevices = [] } = useQuery<Device[]>({
     queryKey: ['/api/devices'],
-    refetchInterval: 5000,
+    refetchInterval: 2000, // Check device list every 2 seconds
   });
   
   // Combine WebSocket devices with REST API devices
   const allDevices = devices.length > 0 ? devices : restDevices;
 
-  // Fetch recent readings for selected device
+  // Fetch recent readings for selected device - FAST refresh for real-time
   const { data: readings = [] } = useQuery<SensorReading[]>({
     queryKey: ['/api/devices', selectedDeviceId, 'readings'],
     enabled: !!selectedDeviceId,
-    refetchInterval: 5000,
+    refetchInterval: 500, // Update every 500ms for near real-time
   });
 
   // Auto-select first device when devices load

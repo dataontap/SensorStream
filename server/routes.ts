@@ -48,6 +48,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         if (message.type === 'sensor-data' && deviceId) {
           console.log('Received sensor data for device:', deviceId, message.data);
+          
+          // Update device status to active when receiving sensor data
+          await storage.updateDevice(deviceId, { 
+            isActive: "true", 
+            lastSeen: new Date() 
+          });
+          console.log('📱 Updated device', deviceId, 'status to ACTIVE');
+          
           // Store sensor reading
           const reading = await storage.createSensorReading({
             deviceId,
@@ -65,6 +73,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           };
           console.log('📡 SERVER: Broadcasting message:', JSON.stringify(broadcastMessage));
           broadcastToAll(broadcastMessage);
+          
+          // Also broadcast updated device list to show active status
+          setTimeout(async () => {
+            await broadcastDeviceList();
+          }, 100);
         }
       } catch (error) {
         console.error('WebSocket message error:', error);
