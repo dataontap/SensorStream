@@ -62,9 +62,8 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         .writeTimeout(30, TimeUnit.SECONDS)
         .build()
     
-    // Server configuration - replace with your actual server URL
-    private val serverUrl = "http://10.0.2.2:5000" // For Android emulator
-    // Use your actual server IP for physical device: "http://YOUR_SERVER_IP:5000"
+    // Server configuration - using deployed Replit app
+    private val serverUrl = "https://sensor-stream.replit.app"
     
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
