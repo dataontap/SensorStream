@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Dashboard from "@/pages/dashboard";
 import DevicePage from "@/pages/device";
 import NotFound from "@/pages/not-found";
+import { useGlobalStreaming } from "@/hooks/use-global-streaming";
 
 function Router() {
   return (
@@ -18,6 +19,9 @@ function Router() {
 }
 
 function App() {
+  // Initialize global streaming service
+  useGlobalStreaming();
+  
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

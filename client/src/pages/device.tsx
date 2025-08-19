@@ -60,13 +60,35 @@ export default function DevicePage() {
     setDeviceId(id);
   }, []);
 
-  // Stream sensor data when active
+  // Check for persistent streaming on mount
+  useEffect(() => {
+    const savedStreamingState = localStorage.getItem('sensorStreaming');
+    if (savedStreamingState) {
+      const { deviceId: savedDeviceId, isStreaming: savedIsStreaming } = JSON.parse(savedStreamingState);
+      if (savedIsStreaming && savedDeviceId === deviceId) {
+        setIsStreaming(true);
+        setIsRegistered(true);
+        // Resume sensors if they were active
+        if (isSupported) {
+          startSensors();
+        }
+      }
+    }
+  }, [deviceId, isSupported, startSensors]);
+
+  // Stream sensor data when active - keep alive across navigation
   useEffect(() => {
     if (!isStreaming || !deviceId || !isConnected) return;
 
+    // Save streaming state to localStorage
+    localStorage.setItem('sensorStreaming', JSON.stringify({
+      deviceId,
+      isStreaming: true
+    }));
+
     const interval = setInterval(() => {
       if (sensorData) {
-        console.log('Sending sensor data:', sensorData);
+        console.log('📡 Sending persistent sensor data:', sensorData);
         sendMessage({
           type: 'sensor-data',
           data: {
@@ -81,7 +103,13 @@ export default function DevicePage() {
       }
     }, 200); // Send data every 200ms
 
-    return () => clearInterval(interval);
+    return () => {
+      // Don't clear interval on component unmount if streaming should persist
+      const shouldPersist = localStorage.getItem('sensorStreaming');
+      if (!shouldPersist) {
+        clearInterval(interval);
+      }
+    };
   }, [isStreaming, deviceId, sensorData, isConnected, sendMessage]);
 
   const handleRegisterDevice = async () => {
@@ -118,6 +146,14 @@ export default function DevicePage() {
     startSensors();
     setIsStreaming(true);
     
+    // Save persistent streaming state
+    if (deviceId) {
+      localStorage.setItem('sensorStreaming', JSON.stringify({
+        deviceId,
+        isStreaming: true
+      }));
+    }
+    
     // Ensure WebSocket registration when starting sensors
     if (isConnected && deviceId) {
       console.log('Re-registering device with WebSocket for streaming:', deviceId);
@@ -129,13 +165,17 @@ export default function DevicePage() {
     
     toast({
       title: "Sensors Started",
-      description: "Sensor data collection has started.",
+      description: "Sensor data streaming has started and will continue even when you navigate to other pages.",
     });
   };
 
   const handleStopSensors = () => {
     stopSensors();
     setIsStreaming(false);
+    
+    // Clear persistent streaming state
+    localStorage.removeItem('sensorStreaming');
+    
     toast({
       title: "Sensors Stopped",
       description: "Sensor data collection has stopped.",
