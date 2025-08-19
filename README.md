@@ -1,39 +1,25 @@
 
-# SensorStream 📱📊
+# 🌊 SensorStream
 
-A real-time sensor data collection and monitoring system that streams data from mobile devices to a web dashboard. Built with React, Express.js, WebSocket, and Android/Kotlin.
+Real-time sensor data collection and monitoring system with React dashboard and Android mobile app.
 
-![SensorStream Dashboard](https://img.shields.io/badge/Platform-Web%20%7C%20Android-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
-![Tech Stack](https://img.shields.io/badge/Tech-React%20%7C%20Express%20%7C%20WebSocket%20%7C%20Android-orange)
+## 🚀 Features
 
-## 🌟 Features
+- **Real-time Sensor Data Collection** from mobile devices and web browsers
+- **Interactive Dashboard** with live charts and device monitoring
+- **Android Mobile App** for hardware sensor access
+- **WebSocket Communication** for low-latency data streaming
+- **Multiple Sensor Support**: Accelerometer, Magnetometer, Light, Air Pressure, Orientation
+- **Device Management** with connection status and battery monitoring
+- **Responsive Design** works on desktop and mobile browsers
+- **Error Monitoring** with Sentry integration
 
-### Real-Time Dashboard
-- **Live sensor data visualization** with interactive charts
-- **Multi-device support** with device selector and status indicators
-- **WebSocket communication** for real-time updates
-- **Data export** functionality (CSV format)
-- **Responsive design** optimized for desktop and mobile viewing
+## 📸 Screenshots
 
-### Mobile Sensor Collection
-- **Android app** built with Kotlin and Jetpack Compose
-- **Multiple sensor support**:
-  - Accelerometer (X, Y, Z axes)
-  - Magnetometer (X, Y, Z axes)
-  - Light sensor (Ambient light level)
-  - Air pressure sensor (Barometric pressure)
-  - Device orientation (Alpha, Beta, Gamma)
-- **Browser-based collection** for web devices
-- **Real-time streaming** with 200ms update intervals
+### Dashboard
+![SensorStream Dashboard](attached_assets/image_1755628948492.png)
 
-### Backend Infrastructure
-- **Express.js REST API** with WebSocket support
-- **In-memory storage** with database abstraction layer
-- **Device management** with unique identification
-- **Cross-platform compatibility** (Android, iOS, Web)
-
-## 🚀 Quick Start
+## 🎯 Quick Start
 
 ### 1. Clone and Setup
 ```bash
@@ -86,6 +72,7 @@ The application will be available at:
 - **Express.js** web framework
 - **WebSocket Server** for real-time data streaming
 - **Zod** for data validation
+- **Sentry** for error monitoring
 - **In-memory storage** with future database support
 
 ### Mobile
@@ -113,11 +100,11 @@ The application will be available at:
 ## 🔧 Configuration
 
 ### Environment Variables
-Create a `.env` file for production deployment:
+Configure these environment variables (via Replit Secrets or .env file):
 ```env
-PORT=5000
+SENTRY_KEY=your_sentry_dsn_here
 NODE_ENV=production
-DATABASE_URL=your_database_url_here
+PORT=5000
 ```
 
 ### Network Setup
@@ -204,7 +191,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📧 Support
 
 For questions and support, please open an issue on GitHub or contact the maintainers.
-
----
-
-Built with ❤️ using React, Express.js, and Android/Kotlin
