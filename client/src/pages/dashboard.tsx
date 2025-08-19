@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useWebSocket } from '@/hooks/use-websocket';
 import { DeviceSelector } from '@/components/device-selector';
 import { SensorCard } from '@/components/sensor-card';
+import { LocationPredictor } from '@/components/location-predictor';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Device, SensorReading } from '@shared/schema';
@@ -223,6 +224,14 @@ export default function Dashboard() {
                   isActive={selectedDevice.isActive === "true"}
                   readings={readings}
                   dataKey="airPressure"
+                />
+              </div>
+
+              {/* AI Location Prediction Section */}
+              <div className="mb-6">
+                <LocationPredictor 
+                  deviceId={selectedDevice.id} 
+                  deviceName={selectedDevice.name} 
                 />
               </div>
 

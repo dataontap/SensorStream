@@ -37,3 +37,24 @@ export type InsertDevice = z.infer<typeof insertDeviceSchema>;
 export type Device = typeof devices.$inferSelect;
 export type InsertSensorReading = z.infer<typeof insertSensorReadingSchema>;
 export type SensorReading = typeof sensorReadings.$inferSelect;
+
+// Location prediction schema
+export const locationPredictions = pgTable("location_predictions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  deviceId: varchar("device_id").notNull().references(() => devices.id),
+  prediction: text("prediction").notNull(), // 'indoor' | 'outdoor'
+  confidence: real("confidence").notNull(), // 0-1
+  sensorDataSnapshot: jsonb("sensor_data_snapshot").notNull(),
+  timestamp: timestamp("timestamp").defaultNow(),
+  userConfirmation: text("user_confirmation"), // 'correct' | 'incorrect' | null
+  actualLocation: text("actual_location"), // 'indoor' | 'outdoor' | null
+  confirmedAt: timestamp("confirmed_at")
+});
+
+export const insertLocationPredictionSchema = createInsertSchema(locationPredictions).omit({
+  id: true,
+  timestamp: true
+});
+
+export type InsertLocationPrediction = z.infer<typeof insertLocationPredictionSchema>;
+export type LocationPrediction = typeof locationPredictions.$inferSelect;

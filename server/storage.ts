@@ -1,4 +1,4 @@
-import { type Device, type InsertDevice, type SensorReading, type InsertSensorReading } from "@shared/schema";
+import { type Device, type InsertDevice, type SensorReading, type InsertSensorReading, type LocationPrediction, type InsertLocationPrediction } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -9,15 +9,23 @@ export interface IStorage {
   createSensorReading(reading: InsertSensorReading): Promise<SensorReading>;
   getRecentReadings(deviceId: string, limit?: number): Promise<SensorReading[]>;
   getLatestReading(deviceId: string): Promise<SensorReading | undefined>;
+  
+  // Location prediction methods
+  createLocationPrediction(prediction: InsertLocationPrediction): Promise<LocationPrediction>;
+  getLocationPredictions(deviceId: string, limit?: number): Promise<LocationPrediction[]>;
+  updateLocationPrediction(id: string, updates: Partial<LocationPrediction>): Promise<LocationPrediction | undefined>;
+  getHistoricalPredictions(deviceId: string): Promise<LocationPrediction[]>;
 }
 
 export class MemStorage implements IStorage {
   private devices: Map<string, Device>;
   private sensorReadings: Map<string, SensorReading>;
+  private locationPredictions: Map<string, LocationPrediction>;
 
   constructor() {
     this.devices = new Map();
     this.sensorReadings = new Map();
+    this.locationPredictions = new Map();
   }
 
   async getDevice(id: string): Promise<Device | undefined> {
@@ -82,6 +90,49 @@ export class MemStorage implements IStorage {
   async getLatestReading(deviceId: string): Promise<SensorReading | undefined> {
     const readings = await this.getRecentReadings(deviceId, 1);
     return readings[0];
+  }
+
+  // Location prediction methods
+  async createLocationPrediction(insertPrediction: InsertLocationPrediction): Promise<LocationPrediction> {
+    const id = randomUUID();
+    const prediction: LocationPrediction = {
+      ...insertPrediction,
+      id,
+      timestamp: new Date(),
+      userConfirmation: null,
+      actualLocation: null,
+      confirmedAt: null,
+    };
+    this.locationPredictions.set(id, prediction);
+    return prediction;
+  }
+
+  async getLocationPredictions(deviceId: string, limit: number = 50): Promise<LocationPrediction[]> {
+    return Array.from(this.locationPredictions.values())
+      .filter(prediction => prediction.deviceId === deviceId)
+      .sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime())
+      .slice(0, limit);
+  }
+
+  async updateLocationPrediction(id: string, updates: Partial<LocationPrediction>): Promise<LocationPrediction | undefined> {
+    const prediction = this.locationPredictions.get(id);
+    if (!prediction) return undefined;
+    
+    const updatedPrediction = { ...prediction, ...updates };
+    if (updates.userConfirmation) {
+      updatedPrediction.confirmedAt = new Date();
+    }
+    this.locationPredictions.set(id, updatedPrediction);
+    return updatedPrediction;
+  }
+
+  async getHistoricalPredictions(deviceId: string): Promise<LocationPrediction[]> {
+    return Array.from(this.locationPredictions.values())
+      .filter(prediction => 
+        prediction.deviceId === deviceId && 
+        prediction.userConfirmation === 'correct'
+      )
+      .sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
   }
 }
 

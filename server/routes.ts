@@ -2,7 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { insertDeviceSchema, insertSensorReadingSchema } from "@shared/schema";
+import { insertDeviceSchema, insertSensorReadingSchema, insertLocationPredictionSchema } from "@shared/schema";
+import { analyzeLocationFromSensorData } from "./gemini-service";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -206,6 +207,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.status(500).json({ error: "Failed to create reading" });
       }
+    }
+  });
+
+  // AI Location Prediction Routes
+  
+  // Get location predictions for a device
+  app.get('/api/devices/:deviceId/predictions', async (req, res) => {
+    try {
+      const { deviceId } = req.params;
+      const limit = parseInt(req.query.limit as string) || 50;
+      const predictions = await storage.getLocationPredictions(deviceId, limit);
+      res.json(predictions);
+    } catch (error) {
+      console.error('Error getting predictions:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Create a new location prediction using AI
+  app.post('/api/devices/:deviceId/predictions/analyze', async (req, res) => {
+    try {
+      const { deviceId } = req.params;
+      
+      // Get recent sensor readings (last 30 readings)
+      const recentReadings = await storage.getRecentReadings(deviceId, 30);
+      
+      if (recentReadings.length === 0) {
+        return res.status(400).json({ message: 'No sensor data available for analysis' });
+      }
+      
+      // Get historical predictions for learning
+      const historicalPredictions = await storage.getHistoricalPredictions(deviceId);
+      
+      // Analyze location using Gemini AI
+      const analysis = await analyzeLocationFromSensorData(recentReadings, historicalPredictions);
+      
+      // Create prediction record
+      const prediction = await storage.createLocationPrediction({
+        deviceId,
+        prediction: analysis.prediction,
+        confidence: analysis.confidence,
+        sensorDataSnapshot: {
+          readingsCount: recentReadings.length,
+          timespan: recentReadings.length > 1 ? 
+            new Date(recentReadings[0].timestamp!).getTime() - new Date(recentReadings[recentReadings.length - 1].timestamp!).getTime() : 0,
+          reasoning: analysis.reasoning,
+          analysis: analysis
+        }
+      });
+      
+      res.json({
+        prediction,
+        analysis
+      });
+      
+    } catch (error) {
+      console.error('Error analyzing location:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
+  // Confirm a location prediction
+  app.post('/api/predictions/:predictionId/confirm', async (req, res) => {
+    try {
+      const { predictionId } = req.params;
+      const { isCorrect, actualLocation } = req.body;
+      
+      if (typeof isCorrect !== 'boolean') {
+        return res.status(400).json({ message: 'isCorrect must be a boolean' });
+      }
+      
+      if (!actualLocation || !['indoor', 'outdoor'].includes(actualLocation)) {
+        return res.status(400).json({ message: 'actualLocation must be indoor or outdoor' });
+      }
+      
+      const updatedPrediction = await storage.updateLocationPrediction(predictionId, {
+        userConfirmation: isCorrect ? 'correct' : 'incorrect',
+        actualLocation
+      });
+      
+      if (!updatedPrediction) {
+        return res.status(404).json({ message: 'Prediction not found' });
+      }
+      
+      res.json(updatedPrediction);
+      
+    } catch (error) {
+      console.error('Error confirming prediction:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
   });
 
