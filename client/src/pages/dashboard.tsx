@@ -12,6 +12,15 @@ export default function Dashboard() {
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
   const { isConnected, devices, latestReadings, sendMessage } = useWebSocket();
   const [, navigate] = useLocation();
+  
+  // Also fetch devices via REST API as fallback
+  const { data: restDevices = [] } = useQuery<Device[]>({
+    queryKey: ['/api/devices'],
+    refetchInterval: 5000,
+  });
+  
+  // Combine WebSocket devices with REST API devices
+  const allDevices = devices.length > 0 ? devices : restDevices;
 
   // Fetch recent readings for selected device
   const { data: readings = [] } = useQuery<SensorReading[]>({
@@ -22,13 +31,25 @@ export default function Dashboard() {
 
   // Auto-select first device when devices load
   useEffect(() => {
-    if (devices.length > 0 && !selectedDeviceId) {
-      setSelectedDeviceId(devices[0].id);
+    console.log('Dashboard devices updated:', allDevices);
+    if (allDevices.length > 0 && !selectedDeviceId) {
+      console.log('Auto-selecting device:', allDevices[0].id);
+      setSelectedDeviceId(allDevices[0].id);
     }
-  }, [devices, selectedDeviceId]);
+  }, [allDevices, selectedDeviceId]);
 
-  const selectedDevice = devices.find(d => d.id === selectedDeviceId);
+  const selectedDevice = allDevices.find(d => d.id === selectedDeviceId);
   const latestReading = selectedDeviceId ? latestReadings.get(selectedDeviceId) : null;
+  
+  console.log('Dashboard state:', { 
+    selectedDeviceId, 
+    wsDevicesCount: devices.length,
+    restDevicesCount: restDevices.length,
+    allDevicesCount: allDevices.length,
+    selectedDevice: selectedDevice?.name,
+    hasLatestReading: !!latestReading,
+    latestReadingData: latestReading 
+  });
 
   const handleAddDevice = () => {
     navigate('/device');
@@ -93,7 +114,7 @@ export default function Dashboard() {
       <div className="flex min-h-screen">
         {/* Sidebar */}
         <DeviceSelector
-          devices={devices}
+          devices={allDevices}
           selectedDeviceId={selectedDeviceId}
           onSelectDevice={setSelectedDeviceId}
           onAddDevice={handleAddDevice}

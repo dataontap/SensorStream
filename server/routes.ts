@@ -16,6 +16,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   wss.on('connection', (ws, req) => {
     let deviceId: string | null = null;
+    console.log('New WebSocket connection established');
+    
+    // Send initial device list to new connections
+    setTimeout(async () => {
+      await broadcastDeviceList();
+    }, 500);
     
     ws.on('message', async (data) => {
       try {

@@ -38,6 +38,10 @@ export function useWebSocket(): UseWebSocketReturn {
       ws.onopen = () => {
         setIsConnected(true);
         console.log('WebSocket connected');
+        // Request initial device list
+        setTimeout(() => {
+          console.log('Requesting initial device list...');
+        }, 100);
       };
 
       ws.onclose = () => {
