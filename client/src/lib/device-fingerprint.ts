@@ -26,10 +26,16 @@ export function generateDeviceFingerprint(): string {
 
 export function getDeviceName(): string {
   const ua = navigator.userAgent;
+  console.log('Device User Agent:', ua);
   
   if (/Android/i.test(ua)) {
     const match = ua.match(/Android\s([0-9\.]*)/);
-    return `Android ${match ? match[1] : 'Device'}`;
+    const version = match ? match[1] : '';
+    // Check if it's a tablet
+    if (/Tablet|SM-T/i.test(ua) || (!/Mobile/i.test(ua) && /Android/i.test(ua))) {
+      return `Android Tablet ${version}`.trim();
+    }
+    return `Android Phone ${version}`.trim();
   }
   
   if (/iPhone|iPad|iPod/i.test(ua)) {
@@ -37,16 +43,16 @@ export function getDeviceName(): string {
   }
   
   if (/Windows/i.test(ua)) {
-    return 'Windows Device';
+    return 'Windows PC';
   }
   
   if (/Mac/i.test(ua)) {
-    return 'Mac Device';
+    return 'Mac';
   }
   
   if (/Linux/i.test(ua)) {
-    return 'Linux Device';
+    return 'Linux PC';
   }
   
-  return 'Unknown Device';
+  return 'Mobile Device';
 }

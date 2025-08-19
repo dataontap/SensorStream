@@ -40,7 +40,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
           
           // Broadcast device list update
-          broadcastDeviceList();
+          console.log(`Device ${deviceId} WebSocket registration complete`);
+          setTimeout(async () => {
+            await broadcastDeviceList();
+          }, 100);
         }
         
         if (message.type === 'sensor-data' && deviceId) {
@@ -85,6 +88,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   async function broadcastDeviceList() {
     const devices = await storage.getDevices();
+    console.log('Broadcasting device list:', devices.map(d => `${d.name} (${d.id}) - Active: ${d.isActive}`));
     broadcastToAll({
       type: 'device-list',
       devices
