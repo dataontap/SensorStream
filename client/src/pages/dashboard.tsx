@@ -85,16 +85,16 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background w-full overflow-x-hidden">
       {/* Header */}
-      <header className="bg-primary text-white shadow-lg" data-testid="header">
-        <div className="w-full px-3 sm:px-4 py-3">
-          <div className="flex items-center justify-between gap-2">
+      <header className="bg-primary text-white shadow-lg w-full" data-testid="header">
+        <div className="w-full max-w-none px-3 sm:px-4 py-3">
+          <div className="flex items-center justify-between gap-2 w-full">
             <div className="flex items-center space-x-2 min-w-0 flex-1">
               <span className="material-icons text-xl sm:text-2xl flex-shrink-0">sensors</span>
               <h1 className="text-sm sm:text-lg font-medium truncate">Sensor Data Dashboard</h1>
             </div>
-            <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="flex items-center space-x-1 sm:space-x-3 flex-shrink-0">
               <div className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1 rounded-full ${
                 isConnected ? 'bg-primaryDark' : 'bg-gray-500'
               }`}>
