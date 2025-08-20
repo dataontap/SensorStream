@@ -24,11 +24,11 @@ export default function Dashboard() {
   // Combine WebSocket devices with REST API devices
   const allDevices = devices.length > 0 ? devices : restDevices;
 
-  // Fetch recent readings for selected device - Moderate refresh for data display
+  // Fetch recent readings for selected device - Slower refresh for graph data
   const { data: readings = [] } = useQuery<SensorReading[]>({
     queryKey: ['/api/devices', selectedDeviceId, 'readings'],
     enabled: !!selectedDeviceId,
-    refetchInterval: 2000, // Update every 2 seconds for less frequent updates
+    refetchInterval: 5000, // Update every 5 seconds for graphs - slower pace
   });
 
   // Auto-select first device when devices load
