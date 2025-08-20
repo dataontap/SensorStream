@@ -39,7 +39,7 @@ export function DeviceSelector({
     <aside className="w-80 bg-white shadow-lg border-r border-gray-200" data-testid="device-selector">
       <div className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-medium text-secondary">Connected Devices</h2>
+          <h2 className="text-lg font-medium text-secondary">Devices</h2>
           <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${
             isConnected ? 'bg-primaryDark' : 'bg-gray-500'
           }`}>
