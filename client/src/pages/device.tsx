@@ -16,6 +16,7 @@ export default function DevicePage() {
   const queryClient = useQueryClient();
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [isRegistered, setIsRegistered] = useState(false);
+  const [permissionsGranted, setPermissionsGranted] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   
   const { sensorData, isSupported, requestPermissions, startSensors, stopSensors, isActive } = useSensors();
@@ -74,6 +75,7 @@ export default function DevicePage() {
       if (savedIsStreaming && savedDeviceId === deviceId) {
         setIsStreaming(true);
         setIsRegistered(true);
+        setPermissionsGranted(true); // If streaming was active, permissions were granted
         // Resume sensors if they were active
         if (isSupported) {
           startSensors();
@@ -123,6 +125,15 @@ export default function DevicePage() {
   const handleRegisterDevice = async () => {
     if (!deviceId) return;
 
+    // Stop any active sensors when registering
+    stopGlobalSensors();
+    stopSensors();
+    setIsStreaming(false);
+    setPermissionsGranted(false);
+    
+    // Clear any persistent streaming state
+    localStorage.removeItem('sensorStreaming');
+
     try {
       await createDeviceMutation.mutateAsync({
         id: deviceId,
@@ -137,11 +148,13 @@ export default function DevicePage() {
   const handleRequestPermissions = async () => {
     const granted = await requestPermissions();
     if (granted) {
+      setPermissionsGranted(true);
       toast({
         title: "Permissions Granted",
         description: "Sensor permissions have been granted.",
       });
     } else {
+      setPermissionsGranted(false);
       toast({
         title: "Permissions Denied",
         description: "Sensor permissions are required for data collection.",
@@ -174,7 +187,7 @@ export default function DevicePage() {
     }
     
     toast({
-      title: "Sensors Started",
+      title: "Sensor Data Enabled",
       description: "Sensor data streaming has started and will continue even when you navigate to other pages.",
     });
   };
@@ -422,48 +435,63 @@ export default function DevicePage() {
                   )}
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
+                  {/* Device Registration Status */}
                   <div className="flex items-center space-x-2 text-success text-sm">
                     <span className="material-icons text-sm">check_circle</span>
                     <span>Device registered successfully</span>
                   </div>
                   
-                  <Button
-                    onClick={handleRequestPermissions}
-                    variant="outline"
-                    data-testid="button-request-permissions"
-                  >
-                    <span className="material-icons text-sm mr-2">security</span>
-                    Request Permissions
-                  </Button>
-                  
-                  {!currentIsActive ? (
+                  {/* Step 2: Request Permissions */}
+                  {!permissionsGranted ? (
                     <Button
-                      onClick={handleStartSensors}
-                      className="bg-success hover:bg-green-600"
-                      data-testid="button-start-sensors"
+                      onClick={handleRequestPermissions}
+                      className="bg-blue-600 hover:bg-blue-700"
+                      data-testid="button-request-permissions"
                     >
-                      <span className="material-icons text-sm mr-2">play_arrow</span>
-                      Start Sensors
+                      <span className="material-icons text-sm mr-2">security</span>
+                      Request Permissions
                     </Button>
                   ) : (
-                    <Button
-                      onClick={handleStopSensors}
-                      variant="destructive"
-                      data-testid="button-stop-sensors"
-                    >
-                      <span className="material-icons text-sm mr-2">stop</span>
-                      Stop Sensors
-                    </Button>
-                  )}
-                  
-                  {isActive && (
-                    <div className="flex items-center space-x-2 text-success text-sm">
-                      <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
-                      <span data-testid="streaming-status">
-                        {isStreaming ? 'Streaming data to dashboard' : 'Sensors active (not streaming)'}
-                      </span>
-                    </div>
+                    <>
+                      {/* Permissions Granted Status */}
+                      <div className="flex items-center space-x-2 text-success text-sm">
+                        <span className="material-icons text-sm">verified_user</span>
+                        <span>Permissions Granted</span>
+                      </div>
+                      <p className="text-sm text-gray-600">Sensor permissions have been granted.</p>
+                      
+                      {/* Step 3: Enable Sensor Data */}
+                      {!currentIsActive ? (
+                        <Button
+                          onClick={handleStartSensors}
+                          className="bg-success hover:bg-green-600"
+                          data-testid="button-enable-sensors"
+                        >
+                          <span className="material-icons text-sm mr-2">sensors</span>
+                          Enable Sensor Data
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={handleStopSensors}
+                          variant="destructive"
+                          data-testid="button-stop-sensors"
+                        >
+                          <span className="material-icons text-sm mr-2">stop</span>
+                          Stop Sensors
+                        </Button>
+                      )}
+                      
+                      {/* Streaming Status */}
+                      {currentIsActive && (
+                        <div className="flex items-center space-x-2 text-success text-sm">
+                          <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
+                          <span data-testid="streaming-status">
+                            {isStreaming ? 'Streaming data to dashboard' : 'Sensors active (not streaming)'}
+                          </span>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               )}
