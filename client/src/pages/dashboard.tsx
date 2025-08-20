@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Device, SensorReading } from '@shared/schema';
 import { useLocation } from 'wouter';
+import { Link } from 'wouter';
 
 export default function Dashboard() {
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
@@ -94,6 +95,12 @@ export default function Dashboard() {
               <h1 className="text-xl font-medium">Sensor Data Dashboard</h1>
             </div>
             <div className="flex items-center space-x-4">
+              <Link href="/device">
+                <Button variant="outline" className="flex items-center space-x-2" data-testid="button-view-live-metrics">
+                  <span className="material-icons text-sm">show_chart</span>
+                  <span>View Live Metrics</span>
+                </Button>
+              </Link>
               <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${
                 isConnected ? 'bg-primaryDark' : 'bg-gray-500'
               }`}>

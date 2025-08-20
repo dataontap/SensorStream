@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useLocation } from 'wouter';
+import { useLocation, Link } from 'wouter';
 import { useSensors } from '@/hooks/use-sensors';
 import { useWebSocket } from '@/hooks/use-websocket';
 import { generateDeviceFingerprint, getDeviceName } from '@/lib/device-fingerprint';
@@ -182,9 +182,6 @@ export default function DevicePage() {
     });
   };
 
-  const handleGoToDashboard = () => {
-    navigate('/');
-  };
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -198,14 +195,12 @@ export default function DevicePage() {
               <p className="text-gray-500">Configure your device for sensor data collection</p>
             </div>
           </div>
-          <Button
-            onClick={handleGoToDashboard}
-            variant="outline"
-            data-testid="button-go-to-dashboard"
-          >
-            <span className="material-icons text-sm mr-2">dashboard</span>
-            Go to Dashboard
-          </Button>
+          <Link href="/">
+            <Button variant="outline" className="flex items-center space-x-2" data-testid="button-view-dashboard">
+              <span className="material-icons text-sm">dashboard</span>
+              <span>View Dashboard</span>
+            </Button>
+          </Link>
         </div>
       </header>
 
