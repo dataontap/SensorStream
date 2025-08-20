@@ -52,7 +52,7 @@ export function DeviceSelector({
           !isExpanded ? 'flex-col space-y-2' : 'justify-between'
         }`}>
           {isExpanded && (
-            <div className="flex items-center space-x-3">
+            <>
               <h2 className="text-lg font-medium text-secondary">Devices</h2>
               <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${
                 isConnected ? 'bg-primaryDark' : 'bg-gray-500'
@@ -64,7 +64,7 @@ export function DeviceSelector({
                   {isConnected ? 'Connected' : 'Disconnected'}
                 </span>
               </div>
-            </div>
+            </>
           )}
           
           {!isExpanded && (
