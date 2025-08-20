@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useSensors } from './use-sensors';
+import { useGlobalSensors, startGlobalSensors, stopGlobalSensors } from './use-global-sensors';
 import { useWebSocket } from './use-websocket';
 
 // Global streaming state
@@ -7,7 +7,7 @@ let globalStreamingInterval: NodeJS.Timeout | null = null;
 let isGlobalStreamingActive = false;
 
 export function useGlobalStreaming() {
-  const { sensorData, isActive } = useSensors();
+  const { sensorData, isActive } = useGlobalSensors();
   const { isConnected, sendMessage } = useWebSocket();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -18,8 +18,10 @@ export function useGlobalStreaming() {
       if (savedStreamingState) {
         const { deviceId, isStreaming } = JSON.parse(savedStreamingState);
         
-        if (isStreaming && deviceId && isConnected && sensorData && !isGlobalStreamingActive) {
+        if (isStreaming && deviceId && isConnected && !isGlobalStreamingActive) {
           console.log('🔄 Resuming global sensor streaming for device:', deviceId);
+          // Ensure sensors are active when resuming streaming
+          startGlobalSensors();
           startGlobalStreaming(deviceId);
         }
       }
@@ -44,6 +46,9 @@ export function useGlobalStreaming() {
 
     console.log('🚀 Starting global sensor streaming for device:', deviceId);
     isGlobalStreamingActive = true;
+    
+    // Ensure sensors are active when starting global streaming
+    startSensors();
 
     const streamingFunction = () => {
       const savedStreamingState = localStorage.getItem('sensorStreaming');

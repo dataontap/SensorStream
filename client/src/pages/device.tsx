@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocation, Link } from 'wouter';
 import { useSensors } from '@/hooks/use-sensors';
+import { useGlobalSensors, startGlobalSensors, stopGlobalSensors } from '@/hooks/use-global-sensors';
 import { useWebSocket } from '@/hooks/use-websocket';
 import { generateDeviceFingerprint, getDeviceName } from '@/lib/device-fingerprint';
 import { apiRequest } from '@/lib/queryClient';
@@ -18,7 +19,12 @@ export default function DevicePage() {
   const [isStreaming, setIsStreaming] = useState(false);
   
   const { sensorData, isSupported, requestPermissions, startSensors, stopSensors, isActive } = useSensors();
+  const { sensorData: globalSensorData, isActive: isGlobalActive } = useGlobalSensors();
   const { isConnected, sendMessage } = useWebSocket();
+  
+  // Use global sensor data if available, fallback to local
+  const currentSensorData = isGlobalActive ? globalSensorData : sensorData;
+  const currentIsActive = isGlobalActive || isActive;
 
   // Create device mutation
   const createDeviceMutation = useMutation({
@@ -87,17 +93,17 @@ export default function DevicePage() {
     }));
 
     const interval = setInterval(() => {
-      if (sensorData) {
-        console.log('📡 Sending persistent sensor data:', sensorData);
+      if (currentSensorData) {
+        console.log('📡 Sending persistent sensor data:', currentSensorData);
         sendMessage({
           type: 'sensor-data',
           data: {
             deviceId,
-            accelerometer: sensorData.accelerometer,
-            magnetometer: sensorData.magnetometer,
-            orientation: sensorData.orientation,
-            lightLevel: sensorData.lightLevel,
-            airPressure: sensorData.airPressure,
+            accelerometer: currentSensorData.accelerometer,
+            magnetometer: currentSensorData.magnetometer,
+            orientation: currentSensorData.orientation,
+            lightLevel: currentSensorData.lightLevel,
+            airPressure: currentSensorData.airPressure,
           }
         });
       }
@@ -110,7 +116,7 @@ export default function DevicePage() {
         clearInterval(interval);
       }
     };
-  }, [isStreaming, deviceId, sensorData, isConnected, sendMessage]);
+  }, [isStreaming, deviceId, currentSensorData, isConnected, sendMessage]);
 
   const handleRegisterDevice = async () => {
     if (!deviceId) return;
@@ -143,6 +149,8 @@ export default function DevicePage() {
   };
 
   const handleStartSensors = () => {
+    // Start global sensors for persistent streaming
+    startGlobalSensors();
     startSensors();
     setIsStreaming(true);
     
@@ -170,6 +178,7 @@ export default function DevicePage() {
   };
 
   const handleStopSensors = () => {
+    stopGlobalSensors();
     stopSensors();
     setIsStreaming(false);
     
@@ -320,7 +329,7 @@ export default function DevicePage() {
         </Card>
 
         {/* Current Sensor Data Card */}
-        {isActive && (
+        {currentIsActive && (
           <Card data-testid="current-sensor-data-card">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
@@ -330,42 +339,42 @@ export default function DevicePage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {sensorData.accelerometer && (
+                {currentSensorData.accelerometer && (
                   <div className="p-3 bg-gray-50 rounded">
                     <p className="text-sm font-medium mb-2">Accelerometer</p>
                     <div className="space-y-1 text-xs">
-                      <div>X: <span className="font-mono" data-testid="accel-x">{sensorData.accelerometer.x.toFixed(2)} m/s²</span></div>
-                      <div>Y: <span className="font-mono" data-testid="accel-y">{sensorData.accelerometer.y.toFixed(2)} m/s²</span></div>
-                      <div>Z: <span className="font-mono" data-testid="accel-z">{sensorData.accelerometer.z.toFixed(2)} m/s²</span></div>
+                      <div>X: <span className="font-mono" data-testid="accel-x">{currentSensorData.accelerometer.x.toFixed(2)} m/s²</span></div>
+                      <div>Y: <span className="font-mono" data-testid="accel-y">{currentSensorData.accelerometer.y.toFixed(2)} m/s²</span></div>
+                      <div>Z: <span className="font-mono" data-testid="accel-z">{currentSensorData.accelerometer.z.toFixed(2)} m/s²</span></div>
                     </div>
                   </div>
                 )}
                 
-                {sensorData.magnetometer && (
+                {currentSensorData.magnetometer && (
                   <div className="p-3 bg-gray-50 rounded">
                     <p className="text-sm font-medium mb-2">Magnetometer</p>
                     <div className="space-y-1 text-xs">
-                      <div>X: <span className="font-mono" data-testid="mag-x">{sensorData.magnetometer.x.toFixed(1)} μT</span></div>
-                      <div>Y: <span className="font-mono" data-testid="mag-y">{sensorData.magnetometer.y.toFixed(1)} μT</span></div>
-                      <div>Z: <span className="font-mono" data-testid="mag-z">{sensorData.magnetometer.z.toFixed(1)} μT</span></div>
+                      <div>X: <span className="font-mono" data-testid="mag-x">{currentSensorData.magnetometer.x.toFixed(1)} μT</span></div>
+                      <div>Y: <span className="font-mono" data-testid="mag-y">{currentSensorData.magnetometer.y.toFixed(1)} μT</span></div>
+                      <div>Z: <span className="font-mono" data-testid="mag-z">{currentSensorData.magnetometer.z.toFixed(1)} μT</span></div>
                     </div>
                   </div>
                 )}
                 
-                {sensorData.lightLevel !== null && (
+                {currentSensorData.lightLevel !== null && (
                   <div className="p-3 bg-gray-50 rounded">
                     <p className="text-sm font-medium mb-2">Light Level</p>
                     <p className="text-lg font-mono" data-testid="light-level">
-                      {sensorData.lightLevel.toFixed(0)} lx
+                      {currentSensorData.lightLevel.toFixed(0)} lx
                     </p>
                   </div>
                 )}
                 
-                {sensorData.airPressure !== null && (
+                {currentSensorData.airPressure !== null && (
                   <div className="p-3 bg-gray-50 rounded">
                     <p className="text-sm font-medium mb-2">Air Pressure</p>
                     <p className="text-lg font-mono" data-testid="air-pressure">
-                      {sensorData.airPressure.toFixed(2)} hPa
+                      {currentSensorData.airPressure.toFixed(2)} hPa
                     </p>
                   </div>
                 )}
@@ -426,7 +435,7 @@ export default function DevicePage() {
                     Request Permissions
                   </Button>
                   
-                  {!isActive ? (
+                  {!currentIsActive ? (
                     <Button
                       onClick={handleStartSensors}
                       className="bg-success hover:bg-green-600"
