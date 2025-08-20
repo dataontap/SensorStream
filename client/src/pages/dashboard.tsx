@@ -124,12 +124,12 @@ export default function Dashboard() {
         />
 
         {/* Main Content */}
-        <main className="flex-1 p-6" data-testid="main-content">
+        <main className="flex-1 p-3 sm:p-6" data-testid="main-content">
           {selectedDevice ? (
             <>
               {/* Device Info Header */}
-              <Card className="mb-6" data-testid="device-info-card">
-                <CardContent className="p-6">
+              <Card className="mb-4 sm:mb-6" data-testid="device-info-card">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <h2 className="text-xl font-medium text-secondary" data-testid="selected-device-name">
@@ -155,9 +155,9 @@ export default function Dashboard() {
 
               {/* Current Sensor Data Section */}
               {latestReading && (
-                <Card className="mb-6" data-testid="current-sensor-data-card">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-6">
+                <Card className="mb-4 sm:mb-6" data-testid="current-sensor-data-card">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-center justify-between mb-4 sm:mb-6">
                       <h3 className="text-lg font-medium text-secondary flex items-center space-x-2">
                         <span className="material-icons text-primary">show_chart</span>
                         <span>Current Sensor Data</span>
@@ -174,9 +174,9 @@ export default function Dashboard() {
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                       {latestReading.accelerometer && (
-                        <div className="p-4 bg-gray-50 rounded-lg border">
+                        <div className="p-3 sm:p-4 bg-gray-50 rounded-lg border">
                           <p className="text-sm font-medium mb-3 text-gray-700 flex items-center space-x-2">
                             <span className="material-icons text-sm text-red-500">speed</span>
                             <span>Accelerometer</span>
@@ -205,7 +205,7 @@ export default function Dashboard() {
                       )}
                       
                       {latestReading.magnetometer && (
-                        <div className="p-4 bg-gray-50 rounded-lg border">
+                        <div className="p-3 sm:p-4 bg-gray-50 rounded-lg border">
                           <p className="text-sm font-medium mb-3 text-gray-700 flex items-center space-x-2">
                             <span className="material-icons text-sm text-purple-500">explore</span>
                             <span>Magnetometer</span>
@@ -234,7 +234,7 @@ export default function Dashboard() {
                       )}
                       
                       {latestReading.lightLevel !== null && (
-                        <div className="p-4 bg-gray-50 rounded-lg border">
+                        <div className="p-3 sm:p-4 bg-gray-50 rounded-lg border">
                           <p className="text-sm font-medium mb-3 text-gray-700 flex items-center space-x-2">
                             <span className="material-icons text-sm text-orange-500">light_mode</span>
                             <span>Light Level</span>
@@ -247,7 +247,7 @@ export default function Dashboard() {
                       )}
                       
                       {latestReading.airPressure !== null && (
-                        <div className="p-4 bg-gray-50 rounded-lg border">
+                        <div className="p-3 sm:p-4 bg-gray-50 rounded-lg border">
                           <p className="text-sm font-medium mb-3 text-gray-700 flex items-center space-x-2">
                             <span className="material-icons text-sm text-cyan-500">air</span>
                             <span>Air Pressure</span>
@@ -260,7 +260,7 @@ export default function Dashboard() {
                       )}
                       
                       {latestReading.orientation && (
-                        <div className="p-4 bg-gray-50 rounded-lg border">
+                        <div className="p-3 sm:p-4 bg-gray-50 rounded-lg border">
                           <p className="text-sm font-medium mb-3 text-gray-700 flex items-center space-x-2">
                             <span className="material-icons text-sm text-blue-500">screen_rotation</span>
                             <span>Orientation</span>
@@ -293,7 +293,7 @@ export default function Dashboard() {
               )}
 
               {/* Sensor Data Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
                 <SensorCard
                   title="Accelerometer X"
                   icon="speed"
@@ -368,7 +368,7 @@ export default function Dashboard() {
               </div>
 
               {/* AI Location Prediction Section */}
-              <div className="mb-6">
+              <div className="mb-4 sm:mb-6">
                 <LocationPredictor 
                   deviceId={selectedDevice.id} 
                   deviceName={selectedDevice.name} 
@@ -377,8 +377,8 @@ export default function Dashboard() {
 
               {/* Data Log Section */}
               <Card data-testid="data-log-card">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-6">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-4 sm:mb-6">
                     <h3 className="text-lg font-medium text-secondary">Recent Data Log</h3>
                     <div className="flex space-x-2">
                       <Button
@@ -396,38 +396,38 @@ export default function Dashboard() {
                   
                   <div className="overflow-x-auto">
                     {readings.length > 0 ? (
-                      <table className="w-full text-sm" data-testid="data-log-table">
+                      <table className="w-full text-xs sm:text-sm" data-testid="data-log-table">
                         <thead className="bg-gray-50 border-b border-gray-200">
                           <tr>
-                            <th className="text-left p-3 font-medium text-gray-700">Timestamp</th>
-                            <th className="text-left p-3 font-medium text-gray-700">Accel (X,Y,Z)</th>
-                            <th className="text-left p-3 font-medium text-gray-700">Mag (X,Y,Z)</th>
-                            <th className="text-left p-3 font-medium text-gray-700">Light</th>
-                            <th className="text-left p-3 font-medium text-gray-700">Pressure</th>
+                            <th className="text-left p-2 sm:p-3 font-medium text-gray-700 text-xs sm:text-sm">Timestamp</th>
+                            <th className="text-left p-2 sm:p-3 font-medium text-gray-700 text-xs sm:text-sm">Accel (X,Y,Z)</th>
+                            <th className="text-left p-2 sm:p-3 font-medium text-gray-700 text-xs sm:text-sm">Mag (X,Y,Z)</th>
+                            <th className="text-left p-2 sm:p-3 font-medium text-gray-700 text-xs sm:text-sm">Light</th>
+                            <th className="text-left p-2 sm:p-3 font-medium text-gray-700 text-xs sm:text-sm">Pressure</th>
                           </tr>
                         </thead>
                         <tbody>
                           {readings.slice(0, 10).map((reading) => (
                             <tr key={reading.id} className="border-b border-gray-100 hover:bg-gray-50">
-                              <td className="p-3 text-gray-600" data-testid={`reading-timestamp-${reading.id}`}>
+                              <td className="p-2 sm:p-3 text-gray-600 text-xs sm:text-sm" data-testid={`reading-timestamp-${reading.id}`}>
                                 {new Date(reading.timestamp || Date.now()).toLocaleTimeString()}
                               </td>
-                              <td className="p-3 font-mono text-xs" data-testid={`reading-accelerometer-${reading.id}`}>
+                              <td className="p-2 sm:p-3 font-mono text-xs" data-testid={`reading-accelerometer-${reading.id}`}>
                                 {reading.accelerometer ? 
                                   `${reading.accelerometer.x.toFixed(2)}, ${reading.accelerometer.y.toFixed(2)}, ${reading.accelerometer.z.toFixed(2)}` : 
                                   '--'
                                 }
                               </td>
-                              <td className="p-3 font-mono text-xs" data-testid={`reading-magnetometer-${reading.id}`}>
+                              <td className="p-2 sm:p-3 font-mono text-xs" data-testid={`reading-magnetometer-${reading.id}`}>
                                 {reading.magnetometer ? 
                                   `${reading.magnetometer.x.toFixed(1)}, ${reading.magnetometer.y.toFixed(1)}, ${reading.magnetometer.z.toFixed(1)}` : 
                                   '--'
                                 }
                               </td>
-                              <td className="p-3" data-testid={`reading-light-${reading.id}`}>
+                              <td className="p-2 sm:p-3 text-xs sm:text-sm" data-testid={`reading-light-${reading.id}`}>
                                 {reading.lightLevel ? `${reading.lightLevel.toFixed(0)} lx` : '--'}
                               </td>
-                              <td className="p-3" data-testid={`reading-pressure-${reading.id}`}>
+                              <td className="p-2 sm:p-3 text-xs sm:text-sm" data-testid={`reading-pressure-${reading.id}`}>
                                 {reading.airPressure ? `${reading.airPressure.toFixed(2)} hPa` : '--'}
                               </td>
                             </tr>

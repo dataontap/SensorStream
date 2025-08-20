@@ -76,7 +76,7 @@ export function SensorCard({
           />
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 sm:p-6">
         <div className="text-center mb-6">
           <p className="text-4xl font-bold mb-2" style={{ color }} data-testid={`sensor-value-${title.toLowerCase().replace(/\s+/g, '-')}`}>
             {value !== null ? value.toFixed(2) : '--'}
