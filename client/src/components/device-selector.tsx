@@ -48,29 +48,40 @@ export function DeviceSelector({
       data-testid="device-selector"
     >
       <div className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            {isExpanded && (
+        <div className={`flex items-center mb-4 ${
+          !isExpanded ? 'flex-col space-y-2' : 'justify-between'
+        }`}>
+          {isExpanded && (
+            <div className="flex items-center space-x-3">
               <h2 className="text-lg font-medium text-secondary">Devices</h2>
-            )}
-            <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${
+              <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${
+                isConnected ? 'bg-primaryDark' : 'bg-gray-500'
+              }`}>
+                <div className={`w-2 h-2 rounded-full ${
+                  isConnected ? 'bg-success animate-pulse' : 'bg-gray-300'
+                }`} />
+                <span className="text-sm text-white" data-testid="connection-status">
+                  {isConnected ? 'Connected' : 'Disconnected'}
+                </span>
+              </div>
+            </div>
+          )}
+          
+          {!isExpanded && (
+            <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
               isConnected ? 'bg-primaryDark' : 'bg-gray-500'
             }`}>
               <div className={`w-2 h-2 rounded-full ${
                 isConnected ? 'bg-success animate-pulse' : 'bg-gray-300'
               }`} />
-              {isExpanded && (
-                <span className="text-sm text-white" data-testid="connection-status">
-                  {isConnected ? 'Connected' : 'Disconnected'}
-                </span>
-              )}
             </div>
-          </div>
+          )}
+          
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setIsExpanded(!isExpanded)}
-            className={`h-8 w-8 flex-shrink-0 ${!isExpanded ? 'mx-auto' : ''}`}
+            className="h-8 w-8 flex-shrink-0"
             data-testid="collapse-toggle"
           >
             {isExpanded ? (
