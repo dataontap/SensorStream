@@ -1,5 +1,6 @@
 import { Device } from '@shared/schema';
 import { Button } from '@/components/ui/button';
+import { Link } from 'wouter';
 
 interface DeviceSelectorProps {
   devices: Device[];
@@ -27,7 +28,7 @@ export function DeviceSelector({
     if (!device.lastSeen) return 'Never seen';
     const lastSeen = new Date(device.lastSeen);
     const timeDiff = Date.now() - lastSeen.getTime();
-    
+
     if (timeDiff < 10000) return 'Just now';
     if (timeDiff < 60000) return `${Math.floor(timeDiff / 1000)} seconds ago`;
     if (timeDiff < 3600000) return `${Math.floor(timeDiff / 60000)} minutes ago`;
@@ -50,7 +51,7 @@ export function DeviceSelector({
             </span>
           </div>
         </div>
-        
+
         <div className="space-y-3">
           {devices.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
@@ -90,16 +91,29 @@ export function DeviceSelector({
             ))
           )}
         </div>
-        
-        <Button
-          onClick={onAddDevice}
-          className="w-full mt-6 bg-primary text-white hover:bg-primaryDark"
-          data-testid="button-add-device"
-        >
-          <span className="material-icons text-sm mr-2">add</span>
-          Add New Device
-        </Button>
-        
+
+        <div className="space-y-2">
+          <Link href="/device">
+            <Button
+              variant="outline"
+              className="w-full flex items-center justify-center space-x-2"
+              data-testid="button-view-live-metrics"
+            >
+              <span className="material-icons text-sm">show_chart</span>
+              <span>View Live Metrics</span>
+            </Button>
+          </Link>
+          <Button
+            onClick={onAddDevice}
+            className="w-full bg-primary hover:bg-primaryDark text-white"
+            disabled={!isConnected}
+            data-testid="button-add-device"
+          >
+            <span className="material-icons text-sm mr-2">add</span>
+            Add Device
+          </Button>
+        </div>
+
         <div className="mt-6 pt-6 border-t border-gray-200">
           <h3 className="text-sm font-medium text-secondary mb-3">Data Controls</h3>
           <div className="space-y-3">
