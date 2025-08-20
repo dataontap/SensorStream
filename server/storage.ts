@@ -66,6 +66,8 @@ export class MemStorage implements IStorage {
       ...insertReading,
       id,
       timestamp: new Date(),
+      userLocalTime: insertReading.userLocalTime ? new Date(insertReading.userLocalTime) : null,
+      userTimezone: insertReading.userTimezone || null,
       accelerometer: insertReading.accelerometer || null,
       magnetometer: insertReading.magnetometer || null,
       orientation: insertReading.orientation || null,

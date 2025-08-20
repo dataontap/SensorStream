@@ -23,11 +23,13 @@ export async function analyzeLocationFromSensorData(
     const systemPrompt = `You are an AI that predicts whether someone is indoors or outdoors based on mobile device sensor data.
 
 Key indicators to consider:
-- Light Level: Higher values typically indicate outdoor environments
+- Light Level: Higher values typically indicate outdoor environments (only use if from real sensors, not simulated)
 - Air Pressure: Can indicate altitude changes (outdoor movement)
 - Accelerometer: Movement patterns differ between indoor/outdoor activities
 - Magnetometer: Magnetic field variations can indicate environment changes
 - Orientation: Device orientation patterns may vary by location
+
+CRITICAL: Do NOT make assumptions about time of day or lighting conditions based on timestamps. The server timestamp may not reflect the user's actual local time zone. Focus purely on the sensor data patterns themselves, not what time you think it is.
 
 ${learningContext}
 
@@ -94,6 +96,11 @@ function summarizeSensorData(readings: SensorReading[]): string {
   // Calculate averages and patterns - exclude simulated data
   const validReadings = readings.filter(r => r.timestamp);
   
+  // Extract user's local time information for context
+  const latestReading = validReadings[validReadings.length - 1];
+  const userLocalTime = latestReading?.userLocalTime || latestReading?.timestamp;
+  const userTimezone = latestReading?.userTimezone;
+  
   // Only use light data if it appears to be from real sensors (not simulated)
   // Simulated data has very predictable patterns, real sensors have more variation
   const lightReadings = validReadings.filter(r => r.lightLevel !== null);
@@ -131,6 +138,10 @@ function summarizeSensorData(readings: SensorReading[]): string {
     lightAnalysis = `- Light sensor: No real light sensor data available (excluding simulated data)`;
   }
 
+  const timeContext = userLocalTime && userTimezone 
+    ? `- User Local Time: ${new Date(userLocalTime).toLocaleString()} (${userTimezone})`
+    : `- Server timestamp: ${new Date().toISOString()} (timezone unknown)`;
+
   return `
 Sensor Data Analysis (${validReadings.length} readings over ${Math.round(timeSpan / 1000)} seconds):
 ${lightAnalysis}
@@ -138,10 +149,15 @@ ${lightAnalysis}
 - Pressure Range: ${minPressure.toFixed(2)} - ${maxPressure.toFixed(2)} hPa
 - Recent Pressure Values: ${pressureReadings.slice(-5).map(p => p.toFixed(2)).join(', ')} hPa
 - Movement Intensity: ${movementIntensity.toFixed(2)} m/s²
-- Time of analysis: ${new Date().toLocaleTimeString()}
+${timeContext}
 - Device activity: ${movementIntensity > 5 ? 'High movement' : movementIntensity > 2 ? 'Moderate movement' : 'Low movement'}
 
-Note: Only using authentic sensor data for analysis. Simulated light sensor data is excluded from predictions.
+IMPORTANT: 
+- Only using authentic sensor data for analysis. Simulated light sensor data is excluded from predictions.
+${userLocalTime && userTimezone 
+  ? '- Analysis includes user\'s actual local time for accurate contextual predictions.'
+  : '- No user timezone data available. Focus on sensor patterns rather than time-based assumptions.'
+}
   `;
 }
 

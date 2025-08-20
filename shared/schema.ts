@@ -17,6 +17,8 @@ export const sensorReadings = pgTable("sensor_readings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   deviceId: varchar("device_id").notNull().references(() => devices.id),
   timestamp: timestamp("timestamp").defaultNow(),
+  userLocalTime: timestamp("user_local_time"),
+  userTimezone: text("user_timezone"),
   accelerometer: jsonb("accelerometer").$type<{x: number, y: number, z: number}>(),
   magnetometer: jsonb("magnetometer").$type<{x: number, y: number, z: number}>(),
   lightLevel: real("light_level"),

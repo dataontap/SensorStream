@@ -43,7 +43,9 @@ export function usePersistentStreaming() {
             magnetometer: sensorData.magnetometer,
             orientation: sensorData.orientation,
             lightLevel: sensorData.lightLevel,
-            airPressure: sensorData.airPressure
+            airPressure: sensorData.airPressure,
+            userLocalTime: new Date().toISOString(),
+            userTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone
           }
         });
       }

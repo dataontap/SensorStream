@@ -76,6 +76,8 @@ export function useGlobalStreaming() {
             orientation: sensorData.orientation,
             lightLevel: sensorData.lightLevel,
             airPressure: sensorData.airPressure,
+            userLocalTime: new Date().toISOString(),
+            userTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           }
         });
       }

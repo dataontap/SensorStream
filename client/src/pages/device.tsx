@@ -104,6 +104,8 @@ export default function DevicePage() {
             orientation: currentSensorData.orientation,
             lightLevel: currentSensorData.lightLevel,
             airPressure: currentSensorData.airPressure,
+            userLocalTime: new Date().toISOString(),
+            userTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           }
         });
       }
