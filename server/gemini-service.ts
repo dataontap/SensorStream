@@ -98,9 +98,14 @@ function summarizeSensorData(readings: SensorReading[]): string {
     .filter(r => r.lightLevel !== null)
     .reduce((sum, r) => sum + (r.lightLevel || 0), 0) / validReadings.length || 0;
     
-  const avgPressure = validReadings
+  const pressureReadings = validReadings
     .filter(r => r.airPressure !== null)
-    .reduce((sum, r) => sum + (r.airPressure || 0), 0) / validReadings.length || 0;
+    .map(r => r.airPressure!)
+    .slice(-10); // Last 10 readings
+  
+  const currentPressure = pressureReadings[pressureReadings.length - 1] || 0;
+  const minPressure = pressureReadings.length > 0 ? Math.min(...pressureReadings) : 0;
+  const maxPressure = pressureReadings.length > 0 ? Math.max(...pressureReadings) : 0;
 
   // Accelerometer movement intensity
   const movementIntensity = validReadings
@@ -119,7 +124,9 @@ function summarizeSensorData(readings: SensorReading[]): string {
   return `
 Sensor Data Analysis (${validReadings.length} readings over ${Math.round(timeSpan / 1000)} seconds):
 - Average Light Level: ${avgLight.toFixed(2)} lux
-- Average Air Pressure: ${avgPressure.toFixed(2)} hPa
+- Current Air Pressure: ${currentPressure.toFixed(2)} hPa
+- Pressure Range: ${minPressure.toFixed(2)} - ${maxPressure.toFixed(2)} hPa
+- Recent Pressure Values: ${pressureReadings.slice(-5).map(p => p.toFixed(2)).join(', ')} hPa
 - Movement Intensity: ${movementIntensity.toFixed(2)} m/s²
 - Time of analysis: ${new Date().toLocaleTimeString()}
 - Device activity: ${movementIntensity > 5 ? 'High movement' : movementIntensity > 2 ? 'Moderate movement' : 'Low movement'}

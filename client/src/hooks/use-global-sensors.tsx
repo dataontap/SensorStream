@@ -72,55 +72,61 @@ export function startGlobalSensors() {
   const hasDeviceOrientation = 'DeviceOrientationEvent' in window;
 
   if (hasDeviceMotion) {
+    console.log('📱 Adding device motion listener');
     window.addEventListener('devicemotion', handleDeviceMotion);
     globalSensorListeners.push(() => window.removeEventListener('devicemotion', handleDeviceMotion));
-  } else {
-    // Simulate accelerometer for desktop testing
-    console.log('🖥️ Simulating accelerometer data for desktop');
-    simulatedMotionInterval = setInterval(() => {
-      globalSensorData.accelerometer = {
-        x: (Math.random() - 0.5) * 20, // ±10 m/s²
-        y: (Math.random() - 0.5) * 20,
-        z: 9.8 + (Math.random() - 0.5) * 2, // Around gravity with some variation
-      };
-      notifyDataUpdate();
-    }, 100);
-    
-    globalSensorListeners.push(() => {
-      if (simulatedMotionInterval) {
-        clearInterval(simulatedMotionInterval);
-        simulatedMotionInterval = null;
-      }
-    });
   }
+  
+  // Always add simulation for desktop/testing - most browsers don't have real sensors
+  console.log('🖥️ Starting accelerometer simulation for desktop');
+  simulatedMotionInterval = setInterval(() => {
+    const time = Date.now() / 1000;
+    globalSensorData.accelerometer = {
+      x: Math.sin(time * 0.8) * 5 + (Math.random() - 0.5) * 2, // ±10 m/s²
+      y: Math.cos(time * 0.6) * 4 + (Math.random() - 0.5) * 2,
+      z: 9.8 + Math.sin(time * 0.3) * 1 + (Math.random() - 0.5) * 0.5, // Around gravity with variation
+    };
+    console.log('🎯 Generated accelerometer data:', globalSensorData.accelerometer);
+    notifyDataUpdate();
+  }, 100);
+  
+  globalSensorListeners.push(() => {
+    if (simulatedMotionInterval) {
+      clearInterval(simulatedMotionInterval);
+      simulatedMotionInterval = null;
+    }
+  });
 
   if (hasDeviceOrientation) {
+    console.log('📱 Adding device orientation listener');
     window.addEventListener('deviceorientation', handleDeviceOrientation);
     globalSensorListeners.push(() => window.removeEventListener('deviceorientation', handleDeviceOrientation));
-  } else {
-    // Simulate magnetometer for desktop testing
-    console.log('🖥️ Simulating magnetometer data for desktop');
-    const magInterval = setInterval(() => {
-      const time = Date.now() / 1000;
-      globalSensorData.magnetometer = {
-        x: Math.sin(time * 0.5) * 30 + (Math.random() - 0.5) * 5,
-        y: Math.cos(time * 0.3) * 25 + (Math.random() - 0.5) * 5,
-        z: Math.sin(time * 0.7) * 20 + (Math.random() - 0.5) * 5,
-      };
-      
-      globalSensorData.orientation = {
-        alpha: (time * 10) % 360,
-        beta: Math.sin(time * 0.2) * 45,
-        gamma: Math.cos(time * 0.15) * 30,
-      };
-      
-      notifyDataUpdate();
-    }, 100);
-    
-    globalSensorListeners.push(() => clearInterval(magInterval));
   }
+  
+  // Always add simulation for desktop/testing
+  console.log('🖥️ Starting magnetometer simulation for desktop');
+  const magInterval = setInterval(() => {
+    const time = Date.now() / 1000;
+    globalSensorData.magnetometer = {
+      x: Math.sin(time * 0.5) * 30 + (Math.random() - 0.5) * 5,
+      y: Math.cos(time * 0.3) * 25 + (Math.random() - 0.5) * 5,
+      z: Math.sin(time * 0.7) * 20 + (Math.random() - 0.5) * 5,
+    };
+    
+    globalSensorData.orientation = {
+      alpha: (time * 10) % 360,
+      beta: Math.sin(time * 0.2) * 45,
+      gamma: Math.cos(time * 0.15) * 30,
+    };
+    
+    console.log('🧭 Generated magnetometer data:', globalSensorData.magnetometer);
+    notifyDataUpdate();
+  }, 100);
+  
+  globalSensorListeners.push(() => clearInterval(magInterval));
 
   // Light sensor simulation
+  console.log('💡 Starting light sensor simulation');
   lightInterval = setInterval(() => {
     globalSensorData.lightLevel = Math.max(0, Math.sin(Date.now() / 10000) * 500 + 300 + (Math.random() - 0.5) * 100);
     notifyDataUpdate();
@@ -134,6 +140,7 @@ export function startGlobalSensors() {
   });
 
   // Air pressure sensor simulation
+  console.log('🌬️ Starting air pressure sensor simulation');
   pressureInterval = setInterval(() => {
     globalSensorData.airPressure = 1013.25 + Math.sin(Date.now() / 20000) * 20 + (Math.random() - 0.5) * 5;
     notifyDataUpdate();
