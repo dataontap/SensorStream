@@ -24,11 +24,11 @@ export default function Dashboard() {
   // Combine WebSocket devices with REST API devices
   const allDevices = devices.length > 0 ? devices : restDevices;
 
-  // Fetch recent readings for selected device - FAST refresh for real-time
+  // Fetch recent readings for selected device - Moderate refresh for data display
   const { data: readings = [] } = useQuery<SensorReading[]>({
     queryKey: ['/api/devices', selectedDeviceId, 'readings'],
     enabled: !!selectedDeviceId,
-    refetchInterval: 500, // Update every 500ms for near real-time
+    refetchInterval: 2000, // Update every 2 seconds for less frequent updates
   });
 
   // Auto-select first device when devices load
@@ -158,6 +158,145 @@ export default function Dashboard() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Current Sensor Data Section */}
+              {latestReading && (
+                <Card className="mb-6" data-testid="current-sensor-data-card">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-lg font-medium text-secondary flex items-center space-x-2">
+                        <span className="material-icons text-primary">show_chart</span>
+                        <span>Current Sensor Data</span>
+                      </h3>
+                      <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${
+                        selectedDevice.isActive === "true" ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        <div className={`w-2 h-2 rounded-full ${
+                          selectedDevice.isActive === "true" ? 'bg-success animate-pulse' : 'bg-gray-400'
+                        }`} />
+                        <span className="text-sm">
+                          {selectedDevice.isActive === "true" ? 'Live Data' : 'No Data'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {latestReading.accelerometer && (
+                        <div className="p-4 bg-gray-50 rounded-lg border">
+                          <p className="text-sm font-medium mb-3 text-gray-700 flex items-center space-x-2">
+                            <span className="material-icons text-sm text-red-500">speed</span>
+                            <span>Accelerometer</span>
+                          </p>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">X:</span>
+                              <span className="font-mono font-medium" data-testid="dashboard-accel-x">
+                                {latestReading.accelerometer.x.toFixed(2)} m/s²
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Y:</span>
+                              <span className="font-mono font-medium" data-testid="dashboard-accel-y">
+                                {latestReading.accelerometer.y.toFixed(2)} m/s²
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Z:</span>
+                              <span className="font-mono font-medium" data-testid="dashboard-accel-z">
+                                {latestReading.accelerometer.z.toFixed(2)} m/s²
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {latestReading.magnetometer && (
+                        <div className="p-4 bg-gray-50 rounded-lg border">
+                          <p className="text-sm font-medium mb-3 text-gray-700 flex items-center space-x-2">
+                            <span className="material-icons text-sm text-purple-500">explore</span>
+                            <span>Magnetometer</span>
+                          </p>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">X:</span>
+                              <span className="font-mono font-medium" data-testid="dashboard-mag-x">
+                                {latestReading.magnetometer.x.toFixed(1)} μT
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Y:</span>
+                              <span className="font-mono font-medium" data-testid="dashboard-mag-y">
+                                {latestReading.magnetometer.y.toFixed(1)} μT
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Z:</span>
+                              <span className="font-mono font-medium" data-testid="dashboard-mag-z">
+                                {latestReading.magnetometer.z.toFixed(1)} μT
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {latestReading.lightLevel !== null && (
+                        <div className="p-4 bg-gray-50 rounded-lg border">
+                          <p className="text-sm font-medium mb-3 text-gray-700 flex items-center space-x-2">
+                            <span className="material-icons text-sm text-orange-500">light_mode</span>
+                            <span>Light Level</span>
+                          </p>
+                          <p className="text-2xl font-mono font-bold text-orange-600" data-testid="dashboard-light-level">
+                            {latestReading.lightLevel.toFixed(0)}
+                          </p>
+                          <p className="text-sm text-gray-500 mt-1">Lux</p>
+                        </div>
+                      )}
+                      
+                      {latestReading.airPressure !== null && (
+                        <div className="p-4 bg-gray-50 rounded-lg border">
+                          <p className="text-sm font-medium mb-3 text-gray-700 flex items-center space-x-2">
+                            <span className="material-icons text-sm text-cyan-500">air</span>
+                            <span>Air Pressure</span>
+                          </p>
+                          <p className="text-2xl font-mono font-bold text-cyan-600" data-testid="dashboard-air-pressure">
+                            {latestReading.airPressure.toFixed(2)}
+                          </p>
+                          <p className="text-sm text-gray-500 mt-1">hPa</p>
+                        </div>
+                      )}
+                      
+                      {latestReading.orientation && (
+                        <div className="p-4 bg-gray-50 rounded-lg border">
+                          <p className="text-sm font-medium mb-3 text-gray-700 flex items-center space-x-2">
+                            <span className="material-icons text-sm text-blue-500">screen_rotation</span>
+                            <span>Orientation</span>
+                          </p>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Alpha:</span>
+                              <span className="font-mono font-medium" data-testid="dashboard-orientation-alpha">
+                                {latestReading.orientation.alpha.toFixed(1)}°
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Beta:</span>
+                              <span className="font-mono font-medium" data-testid="dashboard-orientation-beta">
+                                {latestReading.orientation.beta.toFixed(1)}°
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Gamma:</span>
+                              <span className="font-mono font-medium" data-testid="dashboard-orientation-gamma">
+                                {latestReading.orientation.gamma.toFixed(1)}°
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Sensor Data Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
