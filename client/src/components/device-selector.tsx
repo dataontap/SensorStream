@@ -43,7 +43,7 @@ export function DeviceSelector({
   return (
     <aside 
       className={`bg-white shadow-lg border-r border-gray-200 transition-all duration-300 ${
-        isExpanded ? 'w-80' : 'w-16'
+        isExpanded ? 'w-80' : 'w-12'
       }`} 
       data-testid="device-selector"
     >
@@ -70,13 +70,13 @@ export function DeviceSelector({
             variant="ghost"
             size="icon"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="h-8 w-8 flex-shrink-0"
+            className={`h-8 w-8 flex-shrink-0 ${!isExpanded ? 'mx-auto' : ''}`}
             data-testid="collapse-toggle"
           >
             {isExpanded ? (
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-6 w-6" />
             ) : (
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-6 w-6" />
             )}
           </Button>
         </div>
@@ -184,7 +184,7 @@ export function DeviceSelector({
         )}
 
         {!isExpanded && devices.length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-2 flex flex-col items-center">
             {devices.map((device) => (
               <div
                 key={device.id}
