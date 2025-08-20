@@ -88,24 +88,24 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-primary text-white shadow-lg" data-testid="header">
-        <div className="w-full px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3 min-w-0 flex-1">
-              <span className="material-icons text-2xl flex-shrink-0">sensors</span>
-              <h1 className="text-lg sm:text-xl font-medium truncate">Sensor Data Dashboard</h1>
+        <div className="w-full px-3 sm:px-4 py-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center space-x-2 min-w-0 flex-1">
+              <span className="material-icons text-xl sm:text-2xl flex-shrink-0">sensors</span>
+              <h1 className="text-sm sm:text-lg font-medium truncate">Sensor Data Dashboard</h1>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1 rounded-full ${
                 isConnected ? 'bg-primaryDark' : 'bg-gray-500'
               }`}>
                 <div className={`w-2 h-2 rounded-full ${
                   isConnected ? 'bg-success animate-pulse' : 'bg-gray-300'
                 }`} />
-                <span className="text-sm" data-testid="header-connection-status">
+                <span className="text-xs sm:text-sm" data-testid="header-connection-status">
                   {isConnected ? 'Connected' : 'Disconnected'}
                 </span>
               </div>
-              <span className="material-icons cursor-pointer hover:bg-primaryDark p-2 rounded">
+              <span className="material-icons cursor-pointer hover:bg-primaryDark p-1 sm:p-2 rounded text-xl">
                 settings
               </span>
             </div>
