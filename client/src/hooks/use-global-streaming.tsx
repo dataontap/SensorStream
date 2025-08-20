@@ -48,7 +48,7 @@ export function useGlobalStreaming() {
     isGlobalStreamingActive = true;
     
     // Ensure sensors are active when starting global streaming
-    startSensors();
+    startGlobalSensors();
 
     const streamingFunction = () => {
       const savedStreamingState = localStorage.getItem('sensorStreaming');
