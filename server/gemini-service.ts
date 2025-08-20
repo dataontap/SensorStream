@@ -91,12 +91,14 @@ function summarizeSensorData(readings: SensorReading[]): string {
     return "No sensor data available";
   }
 
-  // Calculate averages and patterns
+  // Calculate averages and patterns - exclude simulated data
   const validReadings = readings.filter(r => r.timestamp);
   
-  const avgLight = validReadings
-    .filter(r => r.lightLevel !== null)
-    .reduce((sum, r) => sum + (r.lightLevel || 0), 0) / validReadings.length || 0;
+  // Only use light data if it appears to be from real sensors (not simulated)
+  // Simulated data has very predictable patterns, real sensors have more variation
+  const lightReadings = validReadings.filter(r => r.lightLevel !== null);
+  const hasRealLightSensor = lightReadings.length > 5 && 
+    Math.abs(Math.max(...lightReadings.map(r => r.lightLevel!)) - Math.min(...lightReadings.map(r => r.lightLevel!))) > 50;
     
   const pressureReadings = validReadings
     .filter(r => r.airPressure !== null)
@@ -121,15 +123,25 @@ function summarizeSensorData(readings: SensorReading[]): string {
     new Date(validReadings[validReadings.length - 1].timestamp!).getTime() - 
     new Date(validReadings[0].timestamp!).getTime() : 0;
 
+  let lightAnalysis = "";
+  if (hasRealLightSensor) {
+    const avgLight = lightReadings.reduce((sum, r) => sum + (r.lightLevel || 0), 0) / lightReadings.length;
+    lightAnalysis = `- Light Level: ${avgLight.toFixed(2)} lux (real sensor data)`;
+  } else {
+    lightAnalysis = `- Light sensor: No real light sensor data available (excluding simulated data)`;
+  }
+
   return `
 Sensor Data Analysis (${validReadings.length} readings over ${Math.round(timeSpan / 1000)} seconds):
-- Average Light Level: ${avgLight.toFixed(2)} lux
+${lightAnalysis}
 - Current Air Pressure: ${currentPressure.toFixed(2)} hPa
 - Pressure Range: ${minPressure.toFixed(2)} - ${maxPressure.toFixed(2)} hPa
 - Recent Pressure Values: ${pressureReadings.slice(-5).map(p => p.toFixed(2)).join(', ')} hPa
 - Movement Intensity: ${movementIntensity.toFixed(2)} m/s²
 - Time of analysis: ${new Date().toLocaleTimeString()}
 - Device activity: ${movementIntensity > 5 ? 'High movement' : movementIntensity > 2 ? 'Moderate movement' : 'Low movement'}
+
+Note: Only using authentic sensor data for analysis. Simulated light sensor data is excluded from predictions.
   `;
 }
 
